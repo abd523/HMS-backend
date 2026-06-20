@@ -33,15 +33,11 @@ class DashboardStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated] # ሎጊን ያደረገ ተጠቃሚ ብቻ እንዲያየው
 
     def get(self, request):
-        # ከየሞዴሎቹ ጠቅላላ ብዛትን መቁጠር
         total_patients = Patient.objects.count()
         total_doctors = Doctor.objects.count()
         total_appointments = Appointment.objects.count()
-
-        # የተከፈለውን ጠቅላላ ገቢ (Revenue) ከባክኤንድ ማስላት
-        total_revenue = Invoice.objects.filter(is_paid=True).aggregate(Sum('amount'))['amount__sum'] or 0
-
-        # ለFront-end (Next.js) የሚላከው የዳታ መዋቅር (JSON Response)
+        #total_revenue = Invoice.objects.filter(status='Paid').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        total_revenue = Invoice.objects.filter(status='Paid').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
         data = {
             "total_patients": total_patients,
             "total_doctors": total_doctors,

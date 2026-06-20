@@ -2,23 +2,27 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-# ቪውሴቶችን ከየአፖቻቸው አምጥተናል
-from billing.views import InvoiceViewSet
+from billing.views import InvoiceViewSet, ReportAnalyticsView
 from pharmacy.views import MedicineViewSet
 from laboratory.views import LabRequestViewSet, LabTestViewSet
+from appointments.views import AppointmentViewSet
+from patients.views import PatientViewSet
+from doctors.views import DoctorViewSet
+from notifications.views import NotificationViewSet
 
 router = DefaultRouter()
 router.register(r'invoices', InvoiceViewSet, basename='invoice')
 router.register(r'medicines', MedicineViewSet, basename='medicine')
 router.register(r'lab-requests', LabRequestViewSet, basename='lab-request')
 router.register(r'lab-tests', LabTestViewSet, basename='lab-test')
+router.register(r'appointments', AppointmentViewSet, basename='appointment')
+router.register(r'patients', PatientViewSet, basename='patient')
+router.register(r'doctors', DoctorViewSet, basename='doctor')
+router.register(r'notifications', NotificationViewSet, basename='notification')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    # Accounts API (users, login, refresh)
     path('api/', include('accounts.urls')),
-
-    # Other API endpoints
+    path('api/reports/analytics/', ReportAnalyticsView.as_view(), name='report-analytics'),
     path('api/', include(router.urls)),
 ]
