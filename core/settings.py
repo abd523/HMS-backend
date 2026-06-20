@@ -158,7 +158,12 @@ AUTH_USER_MODEL = 'accounts.User'
 
 
 # CORS Settings (Development)
-CORS_ALLOW_ALL_ORIGINS = True
+#CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "https://hns-frontend-zy6p.vercel.app",  # Your exact Vercel frontend domain
+    "http://localhost:3000",                  # For local development testing
+]
 
 
 REST_FRAMEWORK = {
