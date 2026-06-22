@@ -53,7 +53,6 @@ demo_doctors = [
 ]
 
 for doc_data in demo_doctors:
-    # Safely secure or verify base user instance record anchors
     user_record = User.objects.filter(username=doc_data["username"]).first()
     
     if not user_record:
@@ -66,7 +65,6 @@ for doc_data in demo_doctors:
             last_name=doc_data["last_name"]
         )
     
-    # Check if accompanying structural Doctor row exists, if not, link them
     if not Doctor.objects.filter(user=user_record).exists():
         print(f"Linking clinical Doctor record with specialization: {doc_data['specialization']}...")
         Doctor.objects.create(
@@ -83,7 +81,6 @@ for doc_data in demo_doctors:
 # ---------------------------------------------------------------- ACTION 3: PATIENTS & TIMELINE RECORDS
 print("\nChecking for sample patient logs...")
 
-# Ensure at least one test patient exists within core system authentication tables
 patient_user, created = User.objects.get_or_create(
     username="hidaya_seid",
     defaults={
@@ -99,10 +96,7 @@ if created:
 else:
     print("i Base user profile for Hidaya Seid already exists.")
 
-# Ensure the corresponding profile row entry exists within your specialized Patient data table
 patient_profile, p_created = Patient.objects.get_or_create(
-    # Depending on your specific database schema, adjust fields to point directly to user=patient_user 
-    # or map flat string fields if your Patient model uses independent columns:
     first_name="Hidaya",
     last_name="Seid",
     defaults={
@@ -119,25 +113,23 @@ else:
     print("i Medical record registry sheet for Hidaya Seid already exists.")
 
 # ---------------------------------------------------------------- ACTION 4: RECONCILE TIMELINE RELATIONSHIPS
-# Select the first seeded doctor profile to act as the consulting practitioner
 doctor_profile = Doctor.objects.first()
 
 if doctor_profile and patient_profile:
     print("\nSeeding medical event logs into appointment timeline...")
     
-    # Verify if an appointment sequence already exists to prevent duplicate timeline logging blocks
-    # Note: If your model filters by 'patient_id' or 'patient', adjust the query keyword filter directly.
+    # Bug Fix: Updated 'date' to 'appointment_date' to match your actual Django model field configuration
     appointment_exists = Appointment.objects.filter(
         doctor=doctor_profile, 
-        date=date(2026, 6, 10)
+        appointment_date=date(2026, 6, 10)
     ).exists()
     
     if not appointment_exists:
         Appointment.objects.create(
-            patient=patient_profile, # Maps directly to your Patient model record instance
-            doctor=doctor_profile,   # Links directly to Dr. Dawit's profile record row instance
-            date=date(2026, 6, 10),
-            time="09:00:00",
+            patient=patient_profile, 
+            doctor=doctor_profile,   
+            appointment_date=date(2026, 6, 10), # Bug Fix: Using 'appointment_date'
+            appointment_time="09:00:00",        # Bug Fix: Using 'appointment_time'
             reason="Hypertension Follow-up Check Routine Evaluation",
             status="Completed"
         )
