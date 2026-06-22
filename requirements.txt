@@ -29,3 +29,4 @@ tzdata==2025.2
 uritemplate==4.2.0
 virtualenv==20.31.2
 virtualenvwrapper-win==1.2.7
+whitenoise==6.12.0
