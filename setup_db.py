@@ -6,15 +6,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 django.setup()
 
 from django.contrib.auth import get_user_model
-# ⚠️ Import your actual Doctor model here. 
-# (Change 'apps.appointments.models' to match your actual Django app structure!)
-#from apps.appointments.models import Doctor 
-# Change this line in your setup_db.py:
-from appointments.models import Doctor
+# Import your exact app modules safely
+from appointments.models import Doctor 
 
 User = get_user_model()
 
-# 1. Create Admin User
+# 1. Create Admin Superuser Account
 username = "admin"
 email = "admin@example.com"
 password = "admin1@3$"
@@ -26,26 +23,52 @@ if not User.objects.filter(username=username).exists():
 else:
     print(f"Superuser {username} already exists.")
 
-# 2. Create Demo Doctors for your Appointment Dropdown
+# 2. Create Demo Doctors
 print("Checking for demo doctors...")
 
-# Dummy doctor data list
 demo_doctors = [
-    {"first_name": "Dawit", "last_name": "Girma", "specialty": "Cardiology", "phone": "0911223344"},
-    {"first_name": "Selam", "last_name": "Alemu", "specialty": "Pediatrics", "phone": "0922334455"},
-    {"first_name": "Michael", "last_name": "Tadesse", "specialty": "General Medicine", "phone": "0933445566"}
+    {
+        "username": "dr_dawit",
+        "first_name": "Dawit",
+        "last_name": "Girma",
+        "email": "dawit@hospital.com",
+        "specialization": "Cardiology",
+        "license": "MD-12345"
+    },
+    {
+        "username": "dr_selam",
+        "first_name": "Selam",
+        "last_name": "Alemu",
+        "email": "selam@hospital.com",
+        "specialization": "Pediatrics",
+        "license": "MD-67890"
+    }
 ]
 
 for doc_data in demo_doctors:
-    # Check if doctor already exists by phone or name to avoid duplication
-    if not Doctor.objects.filter(phone_number=doc_data["phone"]).exists():
-        print(f"Seeding doctor profile: Dr. {doc_data['first_name']}...")
-        Doctor.objects.create(
+    # Check if user already exists to avoid throwing duplicate errors
+    user_record = User.objects.filter(username=doc_data["username"]).first()
+    
+    if not user_record:
+        print(f"Creating user profile for Dr. {doc_data['first_name']}...")
+        user_record = User.objects.create_user(
+            username=doc_data["username"],
+            email=doc_data["email"],
+            password="DoctorPassword123!",
             first_name=doc_data["first_name"],
-            last_name=doc_data["last_name"],
-            specialty=doc_data["specialty"],
-            phone_number=doc_data["phone"]
+            last_name=doc_data["last_name"]
         )
-        print(f"Dr. {doc_data['first_name']} added successfully!")
+    
+    # Check if the accompanying Doctor profile row exists
+    if not Doctor.objects.filter(user=user_record).exists():
+        print(f"Linking clinical Doctor record with specialization: {doc_data['specialization']}...")
+        Doctor.objects.create(
+            user=user_record,
+            specialization=doc_data["specialization"],
+            license_number=doc_data["license"],
+            experience_years=5,
+            is_available=True
+        )
+        print(f"Dr. {doc_data['first_name']} {doc_data['last_name']} added successfully!")
 
 print("Database seeding operations completed successfully!")
