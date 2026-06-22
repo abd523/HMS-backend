@@ -8,7 +8,9 @@ django.setup()
 from django.contrib.auth import get_user_model
 # ⚠️ Import your actual Doctor model here. 
 # (Change 'apps.appointments.models' to match your actual Django app structure!)
-from apps.appointments.models import Doctor 
+#from apps.appointments.models import Doctor 
+# Change this line in your setup_db.py:
+from appointments.models import Doctor
 
 User = get_user_model()
 
