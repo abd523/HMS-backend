@@ -7,3 +7,21 @@ class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = '__all__'
+        read_only_fields = ['paid_at'] # Let the system automatically control this timestamp!
+
+
+
+
+"""
+from rest_framework import serializers
+from .models import Invoice
+
+class InvoiceSerializer(serializers.ModelSerializer):
+    patient_name = serializers.ReadOnlyField(source='patient.first_name')
+
+    class Meta:
+        model = Invoice
+        fields = '__all__'
+
+
+        """
