@@ -118,22 +118,28 @@ doctor_profile = Doctor.objects.first()
 if doctor_profile and patient_profile:
     print("\nSeeding medical event logs into appointment timeline...")
     
-    # Bug Fix: Updated 'date' to 'appointment_date' to match your actual Django model field configuration
+    # Bug Fix: Use a dynamic date (tomorrow) so it never triggers the "past date" validation block
+    from datetime import timedelta
+    from django.utils import timezone
+    
+    # Get the date for tomorrow relative to the server runtime environment
+    tomorrow_date = timezone.now().date() + timedelta(days=1)
+    
     appointment_exists = Appointment.objects.filter(
         doctor=doctor_profile, 
-        appointment_date=date(2026, 6, 10)
+        appointment_date=tomorrow_date
     ).exists()
     
     if not appointment_exists:
         Appointment.objects.create(
             patient=patient_profile, 
             doctor=doctor_profile,   
-            appointment_date=date(2026, 6, 10), # Bug Fix: Using 'appointment_date'
-            appointment_time="09:00:00",        # Bug Fix: Using 'appointment_time'
+            appointment_date=tomorrow_date, # Dynamic future date
+            appointment_time="09:00:00",        
             reason="Hypertension Follow-up Check Routine Evaluation",
             status="Completed"
         )
-        print("✓ Successfully injected 'Hypertension Follow-up' baseline log item into active timelines!")
+        print(f"✓ Successfully injected 'Hypertension Follow-up' baseline log item for {tomorrow_date}!")
     else:
         print("i Appointment timeline event log entry already populated.")
 else:
