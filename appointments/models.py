@@ -1,34 +1,46 @@
+# appointments/models.py
+import uuid
 from django.db import models
 from django.db.models import Q, CheckConstraint, UniqueConstraint
-from core.models import TrackingModel # Import your new base blueprint
+from core.models import TrackingModel 
 
-
-
-
-class Appointment(TrackingModel): # 👈 Inherits UUID, timestamps, and soft delete automatically!
+class Appointment(TrackingModel): 
     STATUS_CHOICES = [
         ('Scheduled', 'Scheduled'),
         ('Completed', 'Completed'),
         ('Cancelled', 'Cancelled'),
     ]
 
-    doctor = models.ForeignKey('doctors.Doctor', on_delete=models.CASCADE, related_name='appointments')
-    patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE, related_name='appointments')
-    appointment_date = models.DateField(db_index=True) # Index for speedier calendar lookups
+    # Allows null=True and blank=True so old data doesn't conflict during the UUID transition
+    doctor = models.ForeignKey(
+        'doctors.Doctor', 
+        on_delete=models.CASCADE, 
+        related_name='appointments',
+        null=True,
+        blank=True
+    )
+    patient = models.ForeignKey(
+        'patients.Patient', 
+        on_delete=models.CASCADE, 
+        related_name='appointments',
+        null=True,
+        blank=True
+    )
+    
+    appointment_date = models.DateField(db_index=True) 
     appointment_time = models.TimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Scheduled')
-    reason = models.TextField()
+    
+    # ✅ Fixed: Added blank=True and default="" to satisfy fallback data validation rules
+    reason = models.TextField(blank=True, default="")
 
     class Meta:
-        # Add production-grade database protection policies
         constraints = [
-            # 1. Unique Constraint: A doctor cannot be double-booked for the exact same date and time
             UniqueConstraint(
                 fields=['doctor', 'appointment_date', 'appointment_time'],
                 name='unique_doctor_schedule_slot',
-                condition=Q(deleted_at__isnull=True) # Only apply if the conflicting appointment wasn't deleted!
+                condition=Q(deleted_at__isnull=True) 
             ),
-            # 2. Check Constraint: Ensures status strings match your valid workflow choices perfectly
             CheckConstraint(
                 check=Q(status__in=['Scheduled', 'Completed', 'Cancelled']),
                 name='valid_appointment_status'
@@ -37,7 +49,6 @@ class Appointment(TrackingModel): # 👈 Inherits UUID, timestamps, and soft del
 
     def __str__(self):
         return f"Appt {self.id} - Dr. {self.doctor} with Patient {self.patient}"
-
 
 """
 from django.db import models
