@@ -2,6 +2,9 @@ from django.db import models
 from django.db.models import Q, CheckConstraint, UniqueConstraint
 from core.models import TrackingModel # Import your new base blueprint
 
+
+
+
 class Appointment(TrackingModel): # 👈 Inherits UUID, timestamps, and soft delete automatically!
     STATUS_CHOICES = [
         ('Scheduled', 'Scheduled'),
