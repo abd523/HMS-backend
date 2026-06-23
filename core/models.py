@@ -5,16 +5,16 @@ from django.utils import timezone
 
 
 class SoftDeleteManager(models.Manager):
-    """Hides soft-deleted records"""
+    """Hide soft-deleted records by default."""
     def get_queryset(self):
         return super().get_queryset().filter(deleted_at__isnull=True)
 
 
 class TrackingModel(models.Model):
     """
-    Abstract base model for:
+    Abstract base model:
     - UUID primary key
-    - created/updated timestamps
+    - timestamps
     - soft delete
     - user tracking
     """
@@ -25,20 +25,10 @@ class TrackingModel(models.Model):
         editable=False
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        db_index=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    updated_at = models.DateTimeField(
-        auto_now=True
-    )
-
-    deleted_at = models.DateTimeField(
-        null=True,
-        blank=True,
-        db_index=True
-    )
+    deleted_at = models.DateTimeField(null=True, blank=True, db_index=True)
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

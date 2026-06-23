@@ -1,54 +1,67 @@
-# appointments/models.py
-import uuid
 from django.db import models
 from django.db.models import Q, CheckConstraint, UniqueConstraint
-from core.models import TrackingModel 
+from core.models import TrackingModel
 
-class Appointment(TrackingModel): 
+
+class Appointment(TrackingModel):
+
+    # Status constants (safe + reusable)
+    STATUS_SCHEDULED = "Scheduled"
+    STATUS_COMPLETED = "Completed"
+    STATUS_CANCELLED = "Cancelled"
+
     STATUS_CHOICES = [
-        ('Scheduled', 'Scheduled'),
-        ('Completed', 'Completed'),
-        ('Cancelled', 'Cancelled'),
+        (STATUS_SCHEDULED, "Scheduled"),
+        (STATUS_COMPLETED, "Completed"),
+        (STATUS_CANCELLED, "Cancelled"),
     ]
 
-    # Allows null=True and blank=True so old data doesn't conflict during the UUID transition
     doctor = models.ForeignKey(
-        'doctors.Doctor', 
-        on_delete=models.CASCADE, 
-        related_name='appointments',
+        "doctors.Doctor",
+        on_delete=models.CASCADE,
+        related_name="appointments",
         null=True,
         blank=True
     )
+
     patient = models.ForeignKey(
-        'patients.Patient', 
-        on_delete=models.CASCADE, 
-        related_name='appointments',
+        "patients.Patient",
+        on_delete=models.CASCADE,
+        related_name="appointments",
         null=True,
         blank=True
     )
-    
-    appointment_date = models.DateField(db_index=True) 
+
+    appointment_date = models.DateField(db_index=True)
     appointment_time = models.TimeField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Scheduled')
-    
-    # ✅ Fixed: Added blank=True and default="" to satisfy fallback data validation rules
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_SCHEDULED
+    )
+
     reason = models.TextField(blank=True, default="")
 
     class Meta:
         constraints = [
             UniqueConstraint(
-                fields=['doctor', 'appointment_date', 'appointment_time'],
-                name='unique_doctor_schedule_slot',
-                condition=Q(deleted_at__isnull=True) 
+                fields=["doctor", "appointment_date", "appointment_time"],
+                name="unique_doctor_schedule_slot",
+                condition=Q(deleted_at__isnull=True),
             ),
             CheckConstraint(
-                check=Q(status__in=['Scheduled', 'Completed', 'Cancelled']),
-                name='valid_appointment_status'
-            )
+                check=Q(status__in=[
+                    "Scheduled",
+                    "Completed",
+                    "Cancelled"
+                ]),
+                name="valid_appointment_status",
+            ),
         ]
 
     def __str__(self):
-        return f"Appt {self.id} - Dr. {self.doctor} with Patient {self.patient}"
+        return f"Appointment {self.id} | Dr {self.doctor} | Patient {self.patient}"
 
 """
 from django.db import models
