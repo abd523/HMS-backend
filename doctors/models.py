@@ -1,3 +1,5 @@
+
+"""
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -22,10 +24,10 @@ class Doctor(models.Model):
     def __str__(self):
         return f"Dr. {self.user.first_name} {self.user.last_name} ({self.specialization})"
 
-
-
-
 """
+
+
+
 from django.db import models
 from django.conf import settings
 
@@ -41,4 +43,4 @@ class Doctor(models.Model):
         return f"Dr. {self.user.first_name} {self.user.last_name} ({self.specialization})"
 
 
-        """
+      
