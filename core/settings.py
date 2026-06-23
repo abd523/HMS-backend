@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     # Local Apps
+    'core',
     'accounts',
     'patients',
     'doctors',
