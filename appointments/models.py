@@ -1,4 +1,43 @@
 from django.db import models
+from django.db.models import Q, CheckConstraint, UniqueConstraint
+from core.models import TrackingModel # Import your new base blueprint
+
+class Appointment(TrackingModel): # 👈 Inherits UUID, timestamps, and soft delete automatically!
+    STATUS_CHOICES = [
+        ('Scheduled', 'Scheduled'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
+    ]
+
+    doctor = models.ForeignKey('doctors.Doctor', on_delete=models.CASCADE, related_name='appointments')
+    patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE, related_name='appointments')
+    appointment_date = models.DateField(db_index=True) # Index for speedier calendar lookups
+    appointment_time = models.TimeField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Scheduled')
+    reason = models.TextField()
+
+    class Meta:
+        # Add production-grade database protection policies
+        constraints = [
+            # 1. Unique Constraint: A doctor cannot be double-booked for the exact same date and time
+            UniqueConstraint(
+                fields=['doctor', 'appointment_date', 'appointment_time'],
+                name='unique_doctor_schedule_slot',
+                condition=Q(deleted_at__isnull=True) # Only apply if the conflicting appointment wasn't deleted!
+            ),
+            # 2. Check Constraint: Ensures status strings match your valid workflow choices perfectly
+            CheckConstraint(
+                check=Q(status__in=['Scheduled', 'Completed', 'Cancelled']),
+                name='valid_appointment_status'
+            )
+        ]
+
+    def __str__(self):
+        return f"Appt {self.id} - Dr. {self.doctor} with Patient {self.patient}"
+
+
+"""
+from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from patients.models import Patient
@@ -39,7 +78,7 @@ class Appointment(models.Model):
         return f"{self.patient} with {self.doctor} on {self.appointment_date}"
 
 
-
+"""
 
 """
 from django.db import models
