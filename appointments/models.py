@@ -1,68 +1,3 @@
-from django.db import models
-from django.db.models import Q, CheckConstraint, UniqueConstraint
-from core.models import TrackingModel
-
-
-class Appointment(TrackingModel):
-
-    # Status constants (safe + reusable)
-    STATUS_SCHEDULED = "Scheduled"
-    STATUS_COMPLETED = "Completed"
-    STATUS_CANCELLED = "Cancelled"
-
-    STATUS_CHOICES = [
-        (STATUS_SCHEDULED, "Scheduled"),
-        (STATUS_COMPLETED, "Completed"),
-        (STATUS_CANCELLED, "Cancelled"),
-    ]
-
-    doctor = models.ForeignKey(
-        "doctors.Doctor",
-        on_delete=models.CASCADE,
-        related_name="appointments",
-        null=True,
-        blank=True
-    )
-
-    patient = models.ForeignKey(
-        "patients.Patient",
-        on_delete=models.CASCADE,
-        related_name="appointments",
-        null=True,
-        blank=True
-    )
-
-    appointment_date = models.DateField(db_index=True)
-    appointment_time = models.TimeField()
-
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default=STATUS_SCHEDULED
-    )
-
-    reason = models.TextField(blank=True, default="")
-
-    class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=["doctor", "appointment_date", "appointment_time"],
-                name="unique_doctor_schedule_slot",
-                condition=Q(deleted_at__isnull=True),
-            ),
-            CheckConstraint(
-                check=Q(status__in=[
-                    "Scheduled",
-                    "Completed",
-                    "Cancelled"
-                ]),
-                name="valid_appointment_status",
-            ),
-        ]
-
-    def __str__(self):
-        return f"Appointment {self.id} | Dr {self.doctor} | Patient {self.patient}"
-
 """
 from django.db import models
 from django.utils import timezone
@@ -107,7 +42,7 @@ class Appointment(models.Model):
 
 """
 
-"""
+
 from django.db import models
 from django.utils import timezone
 from patients.models import Patient
@@ -140,4 +75,4 @@ class Appointment(models.Model):
         return f"{self.patient} with {self.doctor} on {self.appointment_date}"
 
 
-        """
+        
