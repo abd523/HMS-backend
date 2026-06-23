@@ -1,3 +1,4 @@
+"""
 # setup_db.py
 import os
 import django
@@ -147,7 +148,7 @@ else:
 
 print("\n==================================================")
 print("  ALL SYSTEMS ALIGNED AND DATABASE SEED COMPLETE   ")
-print("==================================================")
+print("==================================================")"""
 
 
 
@@ -165,7 +166,7 @@ print("==================================================")
 
 
 
-"""
+
 # setup_db.py
 import os
 import django
@@ -317,4 +318,3 @@ print("\n==================================================")
 print("  ALL SYSTEMS ALIGNED AND DATABASE SEED COMPLETE   ")
 print("==================================================")
 
-"""
